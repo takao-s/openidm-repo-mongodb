@@ -1,0 +1,78 @@
+package org.forgerock.openidm.repo.mongodb.impl.query;
+
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.forgerock.openidm.objset.BadRequestException;
+import org.junit.Before;
+import org.junit.Test;
+import org.testng.Assert;
+
+/**
+ * TokenHandler test
+ * 
+ * @author takao-s
+ */
+public class TokenHandlerTest {
+    Map<String, Object> params = new HashMap<String, Object>();
+    
+    @Before
+    public void init() {
+        params.put("gt", "foo");
+        params.put("age", Integer.valueOf(20));
+        params.put("values", new ArrayList<String>(){{add("1000"); add("2000");}});
+        params.put("field", "user/familyName");
+        params.put("lt", "bar");
+    }
+    
+    @Test
+    public void testReplaceTokensWithValues() {
+        TokenHandler th = new TokenHandler();
+        String queryString = "{ \"age\" : { \"$gt\" : \"${age}\" }}";
+        
+        try {
+            String res = th.replaceTokensWithValues(queryString, params);
+            
+            Assert.assertEquals(res, "{ \"age\" : { \"$gt\" : \"20\" }}");
+            return;
+        } catch (BadRequestException e) {
+            fail(e.getMessage());
+        }
+        fail("Not yet implemented");
+    }
+
+    @Test
+    public void testReplaceTokensWithValues_array() {
+        TokenHandler th = new TokenHandler();
+        String queryString = "{ \"sallary\" : { \"$in\" : \"${values}\" }}";
+        
+        try {
+            String res = th.replaceTokensWithValues(queryString, params);
+            
+            Assert.assertEquals(res, "{ \"sallary\" : { \"$in\" : [\"1000\",\"2000\"] }}");
+            return;
+        } catch (BadRequestException e) {
+            fail(e.getMessage());
+        }
+        fail("Not yet implemented");
+    }
+    
+    @Test
+    public void testReplaceTokensWithValues_dotnotation() {
+        TokenHandler th = new TokenHandler();
+        String queryString = "{ \"${dotnotation:field}\" : \"Smith\" }}";
+        
+        try {
+            String res = th.replaceTokensWithValues(queryString, params);
+            
+            Assert.assertEquals(res, "{ \"user.familyName\" : \"Smith\" }}");
+            return;
+        } catch (BadRequestException e) {
+            fail(e.getMessage());
+        }
+        fail("Not yet implemented");
+    }
+}

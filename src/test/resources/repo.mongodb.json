@@ -1,0 +1,179 @@
+{
+    "replicaSet" : [{"host" : "localhost", "port" : "27017"}],
+    "dbName" : "openidm_test",
+    "connectionsPerHost" : "100",
+    "connectonMultiple" : "5",
+    "user" : "openidm",
+    "password" : "openidm",
+    "queries" : {
+        "get-by-field-value" : { "${field}" : "${value}" },
+        "get-users-of-role" : { "roles" : { "$in" : "${role}" } },
+        "query-all" : {},
+        "query-all-ids" : {},
+        "links-for-firstId" : { "linkType" : "${linkType}", "firstId" : "${firstId}" },
+        "links-for-secondId" : { "linkType" : "${linkType}", "secondId" : "${secondId}" },
+        "links-for-linkType" : { "linkType" : "${linkType}" },
+        "credential-query" : { "userName" : "${username}" },
+        "credential-internaluser-query" : { "_openidm_id" : "${username}" },
+        "for-userName" : { "userName" : "${uid}" },
+        "get-notifications-for-user" : { "receiverId" : "${userId}" },
+        "scan-tasks" : { "${dotnotation:property}" : { "$lt" : "${condition.before}" }, "${taskState.completed}" : null },
+        "query-cluster-instances" : { "timestamp" : { "$lte" : "${timestamp}" }, "state" : { "$in" : [1,2] } },
+        "audit-by-mapping" : { "mapping" : "${mappingName}" },
+        "audit-by-recon-id" : { "reconId" : "${reconId}" },
+        "audit-by-recon-id-type" : { "reconId" : "${reconId}", "entryType" : "${entryType}" },
+        "audit-by-recon-id-situation" : { "reconId" : "${reconId}" , "situation" : "${situation}" },
+        "audit-by-activity-parent-action" : { "parentActionId" : "${parentActionId}" }
+    },
+    "fields" : {
+        "query-all-ids" : { "_openidm_id" : true }
+    },
+
+    "sort" : {
+        "get-notifications-for-user" : { "createDate" : -1 }
+    },
+
+    "aggregate" : {
+        "audit-last-recon-for-all-mappings" : [
+           { "$match"   : { "entryType" : "summary" } },
+           { "$project" : { "mapping" : 1, "messageDetail.started" : 1, "messageDetail.ended" : 1 } },
+           { "$group" : { "_id" : "$mapping", "last_started" : { "$max" : "messageDetail.started" }, 
+               "last_ended" : { "$max" : "messageDetail.ended" } } }
+        ]
+    },
+
+    "collections" : {
+        "internal_user" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "managed_user" : {
+            "index" : [
+                [
+                    { "_openidm_id" : 1 },
+                    { "unique" : true }
+                ],
+                [
+                    { "userName" : 1 },
+                    { "unique" : true }
+                ]
+            ]
+        },
+        "ui_notification" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "link" : {
+            "index" : [
+                [
+                    { "_openidm_id" : 1 },
+                    { "unique" : true }
+                ],
+                [
+                    { "reconId" : 1 }
+                ],
+                [
+                    { "linkType" : 1, "firstId" :1 },
+                    { "unique" : true }
+                ],
+                [
+                    { "linkType" : 1, "secondId" :1 },
+                    { "unique" : true }
+                ]
+            ]
+        },
+        "synchronisation_pooledSyncStage" : {
+            "index" : [
+                [
+                    { "_openidm_id" : 1 },
+                    { "unique" : true }
+                ],
+                [
+                    { "sourceId" : 1 },
+                    { "unique" : true }
+                ],
+                [
+                    { "targetId" : 1 },
+                    { "unique" : true }
+                ],
+                [
+                    { "reconId" : 1 }
+                ]
+            ]
+        },
+        "config" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "scheduler" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "cluster_states" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "scheduler_triggers" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "scheduler_jobs" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "scheduler_calendars" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "scheduler_jobGroups" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "scheduler_triggerGroups" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "security_keys" : {
+            "index" : [
+                { "_openidm_id" : 1 },
+                { "unique" : true }
+            ]
+        },
+        "audit_recon" : {
+            "index" : [
+                { "reconId" : 1 }
+            ]
+        },
+        "audit_activity" : {
+            "index" : [
+                { "_openidm_id" : 1 }
+            ]
+        },
+
+        "audit_access" : {
+            "index" : [
+                { "_openidm_id" : 1 }
+            ]
+        }
+    }
+}

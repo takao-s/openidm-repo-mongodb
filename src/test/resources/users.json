@@ -1,0 +1,22 @@
+[
+{ "_openidm_id" : "user001", "userName" : "user001", "age" : 11, "gender" : "male", "mail" : "user001@mail.test"},
+{ "_openidm_id" : "user002", "userName" : "user002", "age" : 12, "gender" : "female", "mail" : "user002@mail.test"},
+{ "_openidm_id" : "user003", "userName" : "user003", "age" : 13, "gender" : "male", "mail" : "user003@mail.test"},
+{ "_openidm_id" : "user004", "userName" : "user004", "age" : 14, "gender" : "female", "mail" : "user004@mail.test"},
+{ "_openidm_id" : "user005", "userName" : "user005", "age" : 15, "gender" : "male", "mail" : "user005@mail.test"},
+{ "_openidm_id" : "user006", "userName" : "user006", "age" : 16, "gender" : "female", "mail" : "user006@mail.test"},
+{ "_openidm_id" : "user007", "userName" : "user007", "age" : 17, "gender" : "male", "mail" : "user007@mail.test"},
+{ "_openidm_id" : "user008", "userName" : "user008", "age" : 18, "gender" : "female", "mail" : "user008@mail.test"},
+{ "_openidm_id" : "user009", "userName" : "user009", "age" : 19, "gender" : "male", "mail" : "user009@mail.test"},
+{ "_openidm_id" : "user010", "userName" : "user010", "age" : 20, "gender" : "female", "mail" : "user010@mail.test"},
+{ "_openidm_id" : "user011", "userName" : "user011", "age" : 21, "gender" : "male", "mail" : "user011@mail.test"},
+{ "_openidm_id" : "user012", "userName" : "user012", "age" : 22, "gender" : "female", "mail" : "user012@mail.test"},
+{ "_openidm_id" : "user013", "userName" : "user013", "age" : 23, "gender" : "male", "mail" : "user013@mail.test"},
+{ "_openidm_id" : "user014", "userName" : "user014", "age" : 24, "gender" : "female", "mail" : "user014@mail.test"},
+{ "_openidm_id" : "user015", "userName" : "user015", "age" : 25, "gender" : "male", "mail" : "user015@mail.test"},
+{ "_openidm_id" : "user016", "userName" : "user016", "age" : 26, "gender" : "female", "mail" : "user016@mail.test"},
+{ "_openidm_id" : "user017", "userName" : "user017", "age" : 27, "gender" : "male", "mail" : "user017@mail.test"},
+{ "_openidm_id" : "user018", "userName" : "user018", "age" : 28, "gender" : "female", "mail" : "user018@mail.test"},
+{ "_openidm_id" : "user019", "userName" : "user019", "age" : 29, "gender" : "male", "mail" : "user019@mail.test"},
+{ "_openidm_id" : "user020", "userName" : "user020", "age" : 30, "gender" : "female", "mail" : "user020@mail.test"}
+]
