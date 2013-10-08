@@ -28,7 +28,7 @@
     },
     "fields" : {
         "query-all-ids" : { "_openidm_id" : true },
-        "unit-test-02" : { "${fields:fieldnames}" }
+        "unit-test-02" : "${fields:fieldnames}"
     },
 
     "sort" : {
