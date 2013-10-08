@@ -24,7 +24,7 @@
         "audit-by-recon-id-type" : { "reconId" : "${reconId}", "entryType" : "${entryType}" },
         "audit-by-recon-id-situation" : { "reconId" : "${reconId}" , "situation" : "${situation}" },
         "audit-by-activity-parent-action" : { "parentActionId" : "${parentActionId}" },
-        "unit-test-01" : { "gender" : "${gender}", "age" : { "$gt" : "${unquoted:age}" }
+        "unit-test-01" : { "gender" : "${gender}", "age" : { "$gt" : "${unquoted:age}" } }
     },
     "fields" : {
         "query-all-ids" : { "_openidm_id" : true },
@@ -178,7 +178,6 @@
                 { "_openidm_id" : 1 }
             ]
         },
-
         "audit_access" : {
             "index" : [
                 { "_openidm_id" : 1 }
