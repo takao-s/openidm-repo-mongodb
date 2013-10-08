@@ -114,7 +114,7 @@ public class Queries {
         DBObject o = (DBObject)JSON.parse(fieldsConfig);
         for (String key : o.keySet()) {
             QueryInfo qi = new QueryInfo(false);
-            if (!configuredQueries.containsKey(key)) {
+            if (configuredQueries.containsKey(key)) {
                 qi = configuredQueries.get(key);
             }
             qi.setFileds(o.get(key).toString());
@@ -126,7 +126,7 @@ public class Queries {
         DBObject o = (DBObject)JSON.parse(sortConfig);
         for (String key : o.keySet()) {
             QueryInfo qi = new QueryInfo(false);
-            if (!configuredQueries.containsKey(key)) {
+            if (configuredQueries.containsKey(key)) {
                 qi = configuredQueries.get(key);
             }
             qi.setSort(o.get(key).toString());
@@ -179,11 +179,6 @@ public class Queries {
             boolean first = true;
             for (String s : list) {
                 DBObject query = resolveQuery(s, params);
-                if (query.containsField("$group") ) {
-                    query.toMap().get("$group");
-                    DBObject o = (DBObject)query.get("$group");
-                    resultKey = o.get("_id").toString().substring(1);
-                }
                 if (first) {
                     firstParam = query;
                     first = !first;
@@ -198,7 +193,6 @@ public class Queries {
                 result = new ArrayList<DBObject>();
             }
             for (DBObject obj : output.results()) {
-                obj.put(resultKey, obj.get("_id"));
                 result.add(obj);
             }
         } else {

@@ -48,7 +48,7 @@ public class TokenHandler {
     final static Logger logger = LoggerFactory.getLogger(TokenHandler.class);
     
     // The OpenIDM query token is of format "${token-name}"
-    Pattern tokenPattern = Pattern.compile("\"\\$\\{(.+?)\\}\"");
+    Pattern tokenPattern = Pattern.compile("\"?\\$\\{(.+?)\\}\"?");
 
     /**
      * Replaces a query string with tokens of format "${token-name}" with the values from the

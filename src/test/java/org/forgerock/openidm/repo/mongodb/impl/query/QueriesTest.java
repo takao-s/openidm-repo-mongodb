@@ -3,6 +3,7 @@ package org.forgerock.openidm.repo.mongodb.impl.query;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,7 +19,6 @@ import org.forgerock.openidm.repo.mongodb.impl.DBHelper;
 import org.forgerock.openidm.repo.mongodb.impl.MongoDBRepoService;
 import org.forgerock.openidm.repo.mongodb.util.JsonReader;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testng.Assert;
@@ -141,27 +141,117 @@ public class QueriesTest {
     }
     
     @Test
-    public void testExecuteQuery() {
+    public void testExecuteQuery_test_01() {
         Queries queries = null;
         try {
             queries = getQueriesWithSort();
         } catch (Exception e) {
         }
         
-        String queryName = "for-userName";
+        String queryName = "unit-test-01";
         QueryInfo queryInfo = queries.getQueryInfo(queryName);
         Map<String, Object> params = new LinkedHashMap<String, Object>();
-        params.put("uid", "user010");
+        params.put("gender", "female");
+        params.put("age", "58");
         DBCollection collection = DBHelper.getDB(config, true).getCollection(collectionName);
         
         try {
             List<DBObject> list = queries.executeQuery(queryInfo, params, collection);
             Assert.assertEquals(list.size(), 1);
-            Assert.assertEquals(list.get(0).get("_openidm_id").toString(), "user010");
-            Assert.assertEquals(list.get(0).get("userName").toString(), "user010");
-            Assert.assertEquals(list.get(0).get("age").toString(), "20");
+            Assert.assertEquals(list.get(0).get("_openidm_id").toString(), "user049");
+            Assert.assertEquals(list.get(0).get("userName").toString(), "user049");
+            Assert.assertEquals(list.get(0).get("age"), 59);
             Assert.assertEquals(list.get(0).get("gender").toString(), "female");
-            Assert.assertEquals(list.get(0).get("mail").toString(), "user010@mail.test");
+            Assert.assertEquals(list.get(0).get("mail").toString(), "user049@mail.test");
+            Assert.assertEquals(list.get(0).get("birthday").toString(), "2001-02-19");
+            Assert.assertEquals(list.get(0).get("job").toString(), "doctor");
+            return;
+        } catch (BadRequestException e) {
+            fail(e.getMessage());
+        }
+        fail("Not yet implemented");
+    }
+    
+    @Test
+    public void testExecuteQuery_test_02() {
+        Queries queries = null;
+        try {
+            queries = getQueriesWithSort();
+        } catch (Exception e) {
+        }
+        
+        String queryName = "unit-test-02";
+        QueryInfo queryInfo = queries.getQueryInfo(queryName);
+        Map<String, Object> params = new LinkedHashMap<String, Object>();
+        params.put("fieldnames", new ArrayList<String>(){{add("_openidm_id");add("age");add("job");}} );
+        DBCollection collection = DBHelper.getDB(config, true).getCollection(collectionName);
+        
+        try {
+            List<DBObject> list = queries.executeQuery(queryInfo, params, collection);
+            Assert.assertEquals(list.size(), 50);
+            Assert.assertEquals(list.get(0).containsField("_openidm_id"), true);
+            Assert.assertEquals(list.get(0).containsField("age"), true);
+            Assert.assertEquals(list.get(0).containsField("job"), true);
+
+            Assert.assertEquals(list.get(0).containsField("gender"), false);
+            Assert.assertEquals(list.get(0).containsField("birthday"), false);
+            Assert.assertEquals(list.get(0).containsField("mail"), false);
+
+            return;
+        } catch (BadRequestException e) {
+            fail(e.getMessage());
+        }
+        fail("Not yet implemented");
+    }
+    
+    @Test
+    public void testExecuteQuery_test_03() {
+        Queries queries = null;
+        try {
+            queries = getQueriesWithSort();
+        } catch (Exception e) {
+        }
+        
+        String queryName = "unit-test-03";
+        QueryInfo queryInfo = queries.getQueryInfo(queryName);
+        Map<String, Object> params = new LinkedHashMap<String, Object>();
+        DBCollection collection = DBHelper.getDB(config, true).getCollection(collectionName);
+        
+        try {
+            List<DBObject> list = queries.executeQuery(queryInfo, params, collection);
+            Assert.assertEquals(list.size(), 50);
+            Assert.assertEquals(list.get(0).get("_openidm_id").toString(), "user049");
+            Assert.assertEquals(list.get(1).get("_openidm_id").toString(), "user048");
+            Assert.assertEquals(list.get(2).get("_openidm_id").toString(), "user047");
+
+            return;
+        } catch (BadRequestException e) {
+            fail(e.getMessage());
+        }
+        fail("Not yet implemented");
+    }
+    
+    @Test
+    public void testExecuteQuery_test_04() {
+        Queries queries = null;
+        try {
+            queries = getQueriesOfAggregate();
+        } catch (Exception e) {
+        }
+        
+        String queryName = "unit-test-04";
+        QueryInfo queryInfo = queries.getQueryInfo(queryName);
+        Map<String, Object> params = new LinkedHashMap<String, Object>();
+        DBCollection collection = DBHelper.getDB(config, true).getCollection(collectionName);
+        
+        try {
+            List<DBObject> list = queries.executeQuery(queryInfo, params, collection);
+            System.out.println(list);
+//            Assert.assertEquals(list.size(), 50);
+//            Assert.assertEquals(list.get(0).get("_openidm_id").toString(), "user049");
+//            Assert.assertEquals(list.get(1).get("_openidm_id").toString(), "user048");
+//            Assert.assertEquals(list.get(2).get("_openidm_id").toString(), "user047");
+
             return;
         } catch (BadRequestException e) {
             fail(e.getMessage());
@@ -177,19 +267,15 @@ public class QueriesTest {
         } catch (Exception e) {
         }
         Map<String, Object> params = new LinkedHashMap<String, Object>();
-        params.put(QueryConstants.QUERY_ID, "get-by-field-value");
-        params.put("field", "gender");
-        params.put("value", "male");
+        params.put(QueryConstants.QUERY_ID, "unit-test-03");
         DBCollection collection = DBHelper.getDB(config, true).getCollection(collectionName);
         
         try {
             List<DBObject> list = queries.query(params, collection);
-            Assert.assertEquals(list.size(), 10);
-            Assert.assertEquals(list.get(0).get("_openidm_id").toString(), "user001");
-            Assert.assertEquals(list.get(0).get("userName").toString(), "user001");
-            Assert.assertEquals(list.get(0).get("age").toString(), "11");
-            Assert.assertEquals(list.get(0).get("gender").toString(), "male");
-            Assert.assertEquals(list.get(0).get("mail").toString(), "user001@mail.test");
+            Assert.assertEquals(list.size(), 50);
+            Assert.assertEquals(list.get(0).get("_openidm_id").toString(), "user049");
+            Assert.assertEquals(list.get(1).get("_openidm_id").toString(), "user048");
+            Assert.assertEquals(list.get(2).get("_openidm_id").toString(), "user047");
             return;
         } catch (BadRequestException e) {
             fail(e.getMessage());
