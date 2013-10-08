@@ -97,12 +97,12 @@ public class TokenHandlerTest {
     @Test
     public void testReplaceTokensWithValues_fields() {
         TokenHandler th = new TokenHandler();
-        String queryString = "{ \"${fields:names}\" }";
+        String queryString = "\"${fields:names}\"";
         
         try {
             String res = th.replaceTokensWithValues(queryString, params);
             
-            Assert.assertEquals(res, "{ \"uid\":true,\"cn\":true,\"sn\":true }");
+            Assert.assertEquals(res, "{\"uid\":true,\"cn\":true,\"sn\":true}");
             return;
         } catch (BadRequestException e) {
             fail(e.getMessage());
@@ -113,12 +113,12 @@ public class TokenHandlerTest {
     @Test
     public void testReplaceTokensWithValues_fields_one() {
         TokenHandler th = new TokenHandler();
-        String queryString = "{ \"${fields:name}\" }";
+        String queryString = "\"${fields:name}\"";
         
         try {
             String res = th.replaceTokensWithValues(queryString, params);
             
-            Assert.assertEquals(res, "{ \"uid\":true }");
+            Assert.assertEquals(res, "{\"uid\":true}");
             return;
         } catch (BadRequestException e) {
             fail(e.getMessage());

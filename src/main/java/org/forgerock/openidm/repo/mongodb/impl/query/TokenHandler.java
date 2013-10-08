@@ -115,7 +115,9 @@ public class TokenHandler {
                     }
                 }
                 replacement = quote + replacement + quote + fields_option;
-                
+                if (PREFIX_FIELDS.equals(tokenPrefix)) {
+                    replacement = "{" + replacement +"}";
+                }
                 matcher.appendReplacement(buffer, "");
                 buffer.append(replacement);
             }
