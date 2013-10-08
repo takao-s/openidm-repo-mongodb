@@ -7,7 +7,7 @@
     "password" : "openidm",
     "queries" : {
         "get-by-field-value" : { "${field}" : "${value}" },
-        "get-users-of-role" : { "roles" : { "$in" : "${role}" } },
+        "get-users-of-role" : { "roles" : { "$in" : [ "${role}" ] } },
         "query-all" : {},
         "query-all-ids" : {},
         "links-for-firstId" : { "linkType" : "${linkType}", "firstId" : "${firstId}" },
@@ -23,22 +23,31 @@
         "audit-by-recon-id" : { "reconId" : "${reconId}" },
         "audit-by-recon-id-type" : { "reconId" : "${reconId}", "entryType" : "${entryType}" },
         "audit-by-recon-id-situation" : { "reconId" : "${reconId}" , "situation" : "${situation}" },
-        "audit-by-activity-parent-action" : { "parentActionId" : "${parentActionId}" }
+        "audit-by-activity-parent-action" : { "parentActionId" : "${parentActionId}" },
+        "unit-test-01" : { "gender" : "${gender}", "age" : { "$gt" : "${unquoted:age}" }
     },
     "fields" : {
-        "query-all-ids" : { "_openidm_id" : true }
+        "query-all-ids" : { "_openidm_id" : true },
+        "unit-test-02" : { "${fields:fieldnames}" }
     },
 
     "sort" : {
-        "get-notifications-for-user" : { "createDate" : -1 }
+        "get-notifications-for-user" : { "createDate" : -1 },
+        "unit-test-03" : { "age" : -1 }
     },
 
     "aggregate" : {
         "audit-last-recon-for-all-mappings" : [
            { "$match"   : { "entryType" : "summary" } },
            { "$project" : { "mapping" : 1, "messageDetail.started" : 1, "messageDetail.ended" : 1 } },
-           { "$group" : { "_id" : "$mapping", "last_started" : { "$max" : "messageDetail.started" }, 
-               "last_ended" : { "$max" : "messageDetail.ended" } } }
+           { "$group" : { "_id" : "$mapping", "last_started" : { "$max" : "$messageDetail.started" }, 
+               "last_ended" : { "$max" : "$messageDetail.ended" } } }
+        ],
+        "unit-test-04" : [
+           { "$match" : { "age" : { "$gt" : 17 } } },
+           { "$project" : { "job" : 1, "gender" : 1, "birthday" : 1, "age" : 1 } },
+           { "$group" : { "_id" : { "job" : "$job", "gender" : "$gender" },
+               "avg_age" : {"$avg" : "$age"}, "min_birthday" : {"$min" : "$birthday"} } } 
         ]
     },
 
