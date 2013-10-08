@@ -39,19 +39,19 @@ import org.slf4j.LoggerFactory;
  * @author takao-s
  */
 public class TokenHandler {
-    //MongoDB's query default replacement is without quote.
-//    public static final String PREFIX_UNQUOTED = "unquoted";
+    public static final String PREFIX_UNQUOTED = "unquoted";
 
     public static final String PREFIX_DOTNOTATION = "dotnotation";
 
+    public static final String PREFIX_FIELDS = "fields";
+
     final static Logger logger = LoggerFactory.getLogger(TokenHandler.class);
     
-    // The OpenIDM query token is of format ${token-name}
-    Pattern tokenPattern = Pattern.compile("\\$\\{(.+?)\\}");
-    Pattern arrayReplacePattern = Pattern.compile("(\\\")(\\[\\\"[^\\]]+\\])(\\\")");
+    // The OpenIDM query token is of format "${token-name}"
+    Pattern tokenPattern = Pattern.compile("\"\\$\\{(.+?)\\}\"");
 
     /**
-     * Replaces a query string with tokens of format ${token-name} with the values from the
+     * Replaces a query string with tokens of format "${token-name}" with the values from the
      * passed in map, where the token-name must be the key in the map
      * 
      * @param queryString the query with tokens
@@ -63,6 +63,8 @@ public class TokenHandler {
             throws BadRequestException {
         Matcher matcher = tokenPattern.matcher(queryString);
         StringBuffer buffer = new StringBuffer();
+        String quote = "\"";
+        String fields_option = "";
         while (matcher.find()) {
             String fullTokenKey = matcher.group(1);
             String tokenKey = fullTokenKey;
@@ -78,21 +80,23 @@ public class TokenHandler {
                 throw new BadRequestException("Missing entry in params passed to query for token " + tokenKey);
             } else {
                 Object replacement = params.get(tokenKey);
-
+                
+                if (PREFIX_UNQUOTED.equals(tokenPrefix)) {
+                    quote = "";
+                }
+                if (PREFIX_FIELDS.equals(tokenPrefix)) {
+                    fields_option = ":true";
+                }
                 if (replacement instanceof List) {
                     StringBuffer commaSeparated = new StringBuffer();
                     boolean first = true;
                     for (Object entry : ((List) replacement)) {
                         if (!first) {
-                            commaSeparated.append("\",\"");
+                            commaSeparated.append(quote + fields_option + "," + quote);
                         } else {
                             first = false;
-                            commaSeparated.append("[\"");
                         }
                         commaSeparated.append(entry.toString());
-                    }
-                    if (!first) {
-                        commaSeparated.append("\"]");
                     }
                     replacement = commaSeparated.toString();
                 }
@@ -101,27 +105,22 @@ public class TokenHandler {
                 }
                 
                 // Optional control of representation via prefix
-                if (tokenPrefix != null) {
-                    if (tokenPrefix.equals(PREFIX_DOTNOTATION)) {
-                        // Convert Json Pointer to OrientDB dot notation
-                        String dotDelimited = replacement.toString().replace('/', '.');
-                        if (dotDelimited.startsWith(".")) {
-                            replacement = dotDelimited.substring(1);
-                        } else {
-                            replacement = dotDelimited;
-                        }
+                if (PREFIX_DOTNOTATION.equals(tokenPrefix)) {
+                    // Convert Json Pointer to OrientDB dot notation
+                    String dotDelimited = replacement.toString().replace('/', '.');
+                    if (dotDelimited.startsWith(".")) {
+                        replacement = dotDelimited.substring(1);
+                    } else {
+                        replacement = dotDelimited;
                     }
                 }
+                replacement = quote + replacement + quote + fields_option;
                 
                 matcher.appendReplacement(buffer, "");
                 buffer.append(replacement);
             }
         }
         matcher.appendTail(buffer);
-
-        // remove double quote from array replacement.
-        // "["1","2","3"]" -> ["1","2","3"]
-        matcher = arrayReplacePattern.matcher(buffer.toString());
-        return matcher.replaceAll("$2");
+        return buffer.toString();
     }
 }
