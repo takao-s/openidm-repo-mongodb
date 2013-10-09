@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * @author takao-s
  */
 public class DocumentUtil  {
-    final static Logger logger = LoggerFactory.getLogger(DocumentUtilTest.class);
+    final static Logger logger = LoggerFactory.getLogger(DocumentUtil.class);
     
     // Identifiers in the object model. 
     // TDOO: replace with common definitions of these global variables 
