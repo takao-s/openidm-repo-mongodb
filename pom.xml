@@ -34,12 +34,7 @@
             <artifactId>org.apache.felix.scr.annotations</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>13.0.1</version>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
@@ -79,9 +74,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <!-- Need to be able to dynamically find DB drivers -->
-                        <Embed-Dependency>persistence-api;scope=provided</Embed-Dependency>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                         <Export-Package>org.forgerock.openidm.repo.mongodb.metadata;version=${openidm.version}</Export-Package>
                         <Private-Package>org.forgerock.openidm.repo.mongodb.impl.*</Private-Package>
                         <Bundle-Activator>org.forgerock.openidm.repo.mongodb.impl.Activator</Bundle-Activator>
