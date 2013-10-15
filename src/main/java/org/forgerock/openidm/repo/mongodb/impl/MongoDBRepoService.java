@@ -338,12 +338,11 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         if (id.startsWith("/")) {
             startPos = 1;
         }
-        int lastSlashPos = id.lastIndexOf("/");
-
-        if (lastSlashPos > startPos) {
-            type = id.substring(startPos, lastSlashPos);
-        } else {
-            type = id.substring(startPos);
+        type = id.substring(startPos);
+        
+        if (type.split("/").length > 2) {
+            int lastSlashPos = type.lastIndexOf("/");
+            type = type.substring(0, lastSlashPos);
         }
         logger.trace("Full id: {} Extracted type: {}", id, type);
         return type;
