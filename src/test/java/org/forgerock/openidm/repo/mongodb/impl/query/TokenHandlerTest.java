@@ -1,15 +1,13 @@
 package org.forgerock.openidm.repo.mongodb.impl.query;
 
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.forgerock.openidm.objset.BadRequestException;
-import org.junit.Before;
-import org.junit.Test;
 import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 /**
  * TokenHandler test
@@ -19,7 +17,7 @@ import org.testng.Assert;
 public class TokenHandlerTest {
     Map<String, Object> params = new HashMap<String, Object>();
     
-    @Before
+    @BeforeTest
     public void init() {
         params.put("gt", "foo");
         params.put("age", Integer.valueOf(20));
@@ -41,9 +39,9 @@ public class TokenHandlerTest {
             Assert.assertEquals(res, "{ \"age\" : { \"$gt\" : \"20\" }}");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -57,9 +55,9 @@ public class TokenHandlerTest {
             Assert.assertEquals(res, "{ \"age\" : { \"$gt\" : 20 }}");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -73,9 +71,9 @@ public class TokenHandlerTest {
             Assert.assertEquals(res, "{ \"sallary\" : { \"$in\" : [\"1000\",\"2000\"] }}");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -89,9 +87,9 @@ public class TokenHandlerTest {
             Assert.assertEquals(res, "{ \"sallary\" : { \"$in\" : [1000,2000] }}");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -105,9 +103,9 @@ public class TokenHandlerTest {
             Assert.assertEquals(res, "{\"uid\":true,\"cn\":true,\"sn\":true}");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -121,9 +119,9 @@ public class TokenHandlerTest {
             Assert.assertEquals(res, "{\"uid\":true}");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -137,8 +135,8 @@ public class TokenHandlerTest {
             Assert.assertEquals(res, "{ \"user.familyName\" : \"Smith\" }}");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
 }

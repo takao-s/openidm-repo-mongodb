@@ -1,10 +1,8 @@
 package org.forgerock.openidm.repo.mongodb.impl;
 
-import static org.junit.Assert.*;
-
 import org.forgerock.openidm.objset.ConflictException;
-import org.junit.Test;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * DocumentUnit test
@@ -35,10 +33,10 @@ public class DocumentUtilTest {
             DocumentUtil.parseVersion(revision);
             return;
         } catch (ConflictException e) {
-            fail("parseVersion failed");
+            Assert.fail("parseVersion failed");
         }
         
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
 
 }

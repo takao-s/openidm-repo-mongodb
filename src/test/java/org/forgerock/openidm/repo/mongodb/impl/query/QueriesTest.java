@@ -1,7 +1,5 @@
 package org.forgerock.openidm.repo.mongodb.impl.query;
 
-import static org.junit.Assert.fail;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,10 +16,10 @@ import org.forgerock.openidm.repo.QueryConstants;
 import org.forgerock.openidm.repo.mongodb.impl.DBHelper;
 import org.forgerock.openidm.repo.mongodb.impl.MongoDBRepoService;
 import org.forgerock.openidm.repo.mongodb.util.JsonReader;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -72,11 +70,11 @@ public class QueriesTest {
         try {
             Queries queries = getQueries();
         } catch (JsonParseException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         } catch (JsonMappingException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         } catch (IOException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -85,11 +83,11 @@ public class QueriesTest {
         try {
             Queries queries = getQueriesWithFields();
         } catch (JsonParseException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         } catch (JsonMappingException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         } catch (IOException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -98,11 +96,11 @@ public class QueriesTest {
         try {
             Queries queries = getQueriesWithSort();
         } catch (JsonParseException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         } catch (JsonMappingException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         } catch (IOException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
     }
 
@@ -111,11 +109,11 @@ public class QueriesTest {
         try {
             Queries queries = getQueriesOfAggregate();
         } catch (JsonParseException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         } catch (JsonMappingException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         } catch (IOException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
     }
     
@@ -132,7 +130,7 @@ public class QueriesTest {
         try {
             obj = queries.resolveQuery(qStr, map);
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
         Assert.assertEquals(obj.containsField("userName"), true);
         Assert.assertEquals(obj.get("userName").toString(), "Smith");
@@ -167,9 +165,9 @@ public class QueriesTest {
             Assert.assertEquals(list.get(0).get("job").toString(), "doctor");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -199,9 +197,9 @@ public class QueriesTest {
 
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -226,9 +224,9 @@ public class QueriesTest {
 
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -246,17 +244,15 @@ public class QueriesTest {
         
         try {
             List<DBObject> list = queries.executeQuery(queryInfo, params, collection);
-            System.out.println(list);
-//            Assert.assertEquals(list.size(), 50);
-//            Assert.assertEquals(list.get(0).get("_openidm_id").toString(), "user049");
-//            Assert.assertEquals(list.get(1).get("_openidm_id").toString(), "user048");
-//            Assert.assertEquals(list.get(2).get("_openidm_id").toString(), "user047");
-
+            Assert.assertEquals(list.size(), 6);
+            Assert.assertEquals(list.get(0).get("avg_age").toString(), "39.0");
+            Assert.assertEquals(list.get(1).get("min_birthday").toString(), "2000-01-14");
+            Assert.assertEquals(list.get(2).get("_id").toString(), "{ \"job\" : \"doctor\" , \"gender\" : \"male\"}");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     @Test
@@ -278,10 +274,10 @@ public class QueriesTest {
             Assert.assertEquals(list.get(2).get("_openidm_id").toString(), "user047");
             return;
         } catch (BadRequestException e) {
-            fail(e.getMessage());
+            Assert.fail(e.getMessage());
         }
         
-        fail("Not yet implemented");
+        Assert.fail("Not yet implemented");
     }
     
     

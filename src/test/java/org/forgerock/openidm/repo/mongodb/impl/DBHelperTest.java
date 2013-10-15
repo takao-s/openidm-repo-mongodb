@@ -10,10 +10,10 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.forgerock.json.fluent.JsonValue;
 import org.forgerock.openidm.repo.mongodb.util.JsonReader;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -31,7 +31,7 @@ public class DBHelperTest {
     String user = "openidm";
     String pass = "openidm";
     
-    @Before
+    @BeforeTest
     public void setUp() {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> parsedConfig;
@@ -54,12 +54,12 @@ public class DBHelperTest {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        MongoClient client = new MongoClient(addr);
-        DB db = client.getDB(dbName);
-        db.addUser(user, pass.toCharArray());
+//        MongoClient client = new MongoClient(addr);
+//        DB db = client.getDB(dbName);
+//        db.addUser(user, pass.toCharArray());
     }
 
-    @After
+    @AfterTest
     public void tearDown() {
         ServerAddress addr = null;
         try {
@@ -82,12 +82,10 @@ public class DBHelperTest {
         BasicDBObject query = new BasicDBObject();
         query.put("_openidm_id", "openidm-admin");
         DBObject r1 = collection.findOne(query);
-        System.out.println(r1);
         Assert.assertNotNull(r1);
         
         query.put("_openidm_id", "anonymous");
         DBObject r2 = collection.findOne(query);
-        System.out.println(r2);
         Assert.assertNotNull(r2);
         return;
     }
