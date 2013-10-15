@@ -106,7 +106,7 @@ public class TokenHandler {
                 
                 // Optional control of representation via prefix
                 if (PREFIX_DOTNOTATION.equals(tokenPrefix)) {
-                    // Convert Json Pointer to OrientDB dot notation
+                    // Convert Json Pointer to MongoDB dot notation
                     String dotDelimited = replacement.toString().replace('/', '.');
                     if (dotDelimited.startsWith(".")) {
                         replacement = dotDelimited.substring(1);
