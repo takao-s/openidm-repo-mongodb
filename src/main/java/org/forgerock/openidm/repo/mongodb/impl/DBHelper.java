@@ -1,8 +1,5 @@
 package org.forgerock.openidm.repo.mongodb.impl;
 
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +16,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.ServerAddress;
 import com.mongodb.util.JSON;
 
 /**
@@ -74,7 +69,7 @@ public class DBHelper {
         
         String defaultAdminUser = "openidm-admin";
         // Default password needs to be replaced after installation
-        String defaultAdminPwd = "{\"$crypto\":{\"value\":{\"iv\":\"fIevcJYS4TMxClqcK7covg==\",\"data\":"
+        String defaultAdminPwd = "{\"_$crypto\":{\"value\":{\"iv\":\"fIevcJYS4TMxClqcK7covg==\",\"data\":"
                 + "\"Tu9o/S+j+rhOIgdp9uYc5Q==\",\"cipher\":\"AES/CBC/PKCS5Padding\",\"key\":\"openidm-sym-default\"},"
                 + "\"type\":\"x-simple-encryption\"}}";
         String defaultAdminRoles = "openidm-admin,openidm-authorized";
@@ -131,9 +126,14 @@ public class DBHelper {
             return;
         }
         Map<String, Object> defAdmin = new LinkedHashMap<String, Object>();
+        defAdmin.put("_id", user);
         defAdmin.put("_openidm_id", user);
         defAdmin.put("userName", user);
-        defAdmin.put("password", pwd);
+        try {
+            defAdmin.put("password", JSON.parse(pwd));
+        } catch (com.mongodb.util.JSONParseException e) {
+            defAdmin.put("password", pwd);
+        }
         String[] role = roles.split(",");
         defAdmin.put("roles", role);
         BasicDBObjectBuilder builder = BasicDBObjectBuilder.start(defAdmin);

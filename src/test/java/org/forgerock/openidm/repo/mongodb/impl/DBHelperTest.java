@@ -96,9 +96,20 @@ public class DBHelperTest {
         DBObject r1 = collection.findOne(query);
         Assert.assertNotNull(r1);
         
+        query = new BasicDBObject();
         query.put("_openidm_id", "anonymous");
         DBObject r2 = collection.findOne(query);
         Assert.assertNotNull(r2);
+        
+        query = new BasicDBObject();
+        query.put("_id", "openidm-admin");
+        DBObject r3 = collection.findOne(query);
+        Assert.assertNotNull(r3);
+        
+        query = new BasicDBObject();
+        query.put("_id", "anonymous");
+        DBObject r4 = collection.findOne(query);
+        Assert.assertNotNull(r4);
         return;
     }
     

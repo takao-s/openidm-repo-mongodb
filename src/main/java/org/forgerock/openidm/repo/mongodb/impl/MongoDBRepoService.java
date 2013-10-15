@@ -1,9 +1,7 @@
 package org.forgerock.openidm.repo.mongodb.impl;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,11 +13,11 @@ import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
+import org.bson.BSONObject;
 import org.forgerock.json.fluent.JsonValue;
 // JSON Resource
 import org.forgerock.json.resource.JsonResource;
 import org.forgerock.openidm.config.EnhancedConfig;
-import org.forgerock.openidm.config.InvalidException;
 import org.forgerock.openidm.config.JSONEnhancedConfig;
 // Deprecated
 import org.forgerock.openidm.objset.BadRequestException;
@@ -44,8 +42,8 @@ import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.ServerAddress;
 import com.mongodb.WriteResult;
+import com.mongodb.util.JSON;
 
 /**
  * Repository service implementation using MongoDB
@@ -85,6 +83,8 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
     public static final String CONFIG_INDEX = "index";    
     public static final String CONFIG_INDEX_UNIQUE = "unique";
     
+    static final String[] KEIS_OF_STRING = {"password", "securityAnswer"};
+    
     DB db;
     
     // Current configuration
@@ -108,7 +108,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
     @Override
     public Map<String, Object> read(String fullId) throws ObjectSetException {
         String localId = getLocalId(fullId);
-        String type = getObjectType(fullId);
+        String type = getObjectType(fullId, false);
         
         if (fullId == null || localId == null) {
             throw new NotFoundException("The repository requires clients to supply an identifier "
@@ -124,6 +124,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         if (doc == null) {
             throw new NotFoundException("Object " + fullId + " not found in " + type);
         }
+        doc = normalizeForRead(doc);
         result = doc.toMap();
         logger.trace("Completed get for id: {} result: {}", fullId, result);
         return result;
@@ -144,7 +145,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
     @Override
     public void create(String fullId, Map<String, Object> obj) throws ObjectSetException {
         String localId = getLocalId(fullId);
-        String type = getObjectType(fullId);
+        String type = getObjectType(fullId, false);
         
         if (fullId == null || localId == null) {
             throw new NotFoundException("The repository requires clients to supply an identifier for the object to create. Full identifier: " + fullId + " local identifier: " + localId);
@@ -157,7 +158,8 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         obj.put(DocumentUtil.TAG_REV, "0");
         BasicDBObjectBuilder builder = BasicDBObjectBuilder.start(obj);
         DBObject jo = builder.get();
-        
+        jo = normalizeForWrite(jo);
+
         DBCollection collection = getCollection(type);
         collection.insert(jo);
         logger.debug("Completed create for id: {} revision: {}", fullId, jo.get(DocumentUtil.TAG_REV));
@@ -186,7 +188,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
     public void update(String fullId, String rev, Map<String, Object> obj) throws ObjectSetException {
         
         String localId = getLocalId(fullId);
-        String type = getObjectType(fullId);
+        String type = getObjectType(fullId, false);
         
         if (rev == null) {
             throw new ConflictException("Object passed into update does not have revision it expects set.");
@@ -205,6 +207,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         obj.put(DocumentUtil.MONGODB_PRIMARY_KEY, localId);
         BasicDBObjectBuilder builder = BasicDBObjectBuilder.start(obj);
         DBObject jo = builder.get();
+        jo = normalizeForWrite(jo);
         WriteResult res = collection.update(new BasicDBObject(DocumentUtil.TAG_ID, localId), jo);
         logger.trace("Updated doc for id {} to save {}", fullId, jo);
     }
@@ -222,7 +225,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
     @Override
     public void delete(String fullId, String rev) throws ObjectSetException {
         String localId = getLocalId(fullId);
-        String type = getObjectType(fullId);
+        String type = getObjectType(fullId, false);
 
         if (rev == null) {
             throw new ConflictException("Object passed into delete does not have revision it expects set.");
@@ -277,7 +280,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
      */
     @Override
     public Map<String, Object> query(String fullId, Map<String, Object> params) throws ObjectSetException {
-        String type = getObjectType(fullId); 
+        String type = getObjectType(fullId, true); 
         logger.trace("Full id: {} Extracted type: {}", fullId, type);
         
         Map<String, Object> result = new HashMap<String, Object>();
@@ -291,6 +294,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         if (queryResult != null) {
             long convStart = System.currentTimeMillis();
             for (DBObject entry : queryResult) {
+                entry = normalizeForRead(entry);
                 Map<String, Object> convertedEntry = entry.toMap();
                 docs.add(convertedEntry);
             }
@@ -304,6 +308,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
                     new Object[] {((List) result.get(QueryConstants.QUERY_RESULT)).size(),
                     result.get(QueryConstants.STATISTICS_QUERY_TIME),
                     result.get(QueryConstants.STATISTICS_CONVERSION_TIME)});
+            logger.debug("Query result: {}", result);
         }
         return result;
     }
@@ -331,25 +336,74 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         return localId;
     }
     
-    private static String getObjectType(String id) {
+    private static String getObjectType(String id, boolean query) {
         String type = null;
         
-        int startPos = 0;
-        if (id.startsWith("/")) {
-            startPos = 1;
-        }
-        type = id.substring(startPos);
-        
-        if (type.split("/").length > 2) {
-            int lastSlashPos = type.lastIndexOf("/");
-            type = type.substring(0, lastSlashPos);
+        if (query) {
+            type = id;
+            if (id != null && id.startsWith("/")) {
+                type = id.substring(1);
+            }
+        } else {
+            int lastSlashPos = id.lastIndexOf("/");
+            if (lastSlashPos > -1) {
+                int startPos = 0;
+                // This should not be necessary as relative URI should not start with slash
+                if (id.startsWith("/")) {
+                    startPos = 1;
+                }
+                type = id.substring(startPos, lastSlashPos);
+            }
         }
         logger.trace("Full id: {} Extracted type: {}", id, type);
         return type;
     }
     
-    public static String typeToCollectionName(String type) {
+    private static String typeToCollectionName(String type) {
         return type.replace("/", "_");
+    }
+    
+    /**
+     * MongoDB can't store data which has key starting with "$".
+     * So, When key starts with "$", convert "$" to "_$".
+     * 
+     * @param obj
+     * @return
+     */
+    private static DBObject normalizeForWrite (DBObject obj) {
+        String regex = "\"(\\$[^\"]+)\"";
+        String replacement = "\"_$1\"";
+        for (int i = 0; i < KEIS_OF_STRING.length; i++) {
+            if (obj.containsField(KEIS_OF_STRING[i])) {
+                JsonValue jv = new JsonValue(obj.get(KEIS_OF_STRING[i]));
+                String v = jv.toString().replaceAll(regex, replacement);
+                obj.put(KEIS_OF_STRING[i], JSON.parse(v));
+            }
+        }
+        return obj;
+    }
+    
+    /**
+     * unescape "_$" to "$".
+     * And Json parameter convert to Json as String paramter,
+     * Because, OpenIDM expected to parse Json as String.
+     * 
+     * @param obj
+     * @return
+     */
+    private static DBObject normalizeForRead (DBObject obj) {
+        String regex = "\"([^\"]+)\"";
+        String replacement = "\\\"$1\\\"";
+        for (int i = 0; i < KEIS_OF_STRING.length; i++) {
+            if (obj.containsField(KEIS_OF_STRING[i])) {
+                JsonValue jv = new JsonValue(obj.get(KEIS_OF_STRING[i]));
+                String v = jv.toString().replaceAll(regex, replacement);
+                v = v.replaceAll(" ", "");
+                v = v.replaceFirst("\"_\\$", "\"\\$");
+                obj.put(KEIS_OF_STRING[i], v);
+            }
+        }
+        return obj;
     }
     
     /**
