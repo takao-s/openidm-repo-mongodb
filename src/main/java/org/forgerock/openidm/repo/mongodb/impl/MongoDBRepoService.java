@@ -154,7 +154,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         
         obj.put(DocumentUtil.TAG_ID, localId);
         obj.put(DocumentUtil.MONGODB_PRIMARY_KEY, localId);
-        obj.put(DocumentUtil.TAG_REV, Integer.valueOf(0));
+        obj.put(DocumentUtil.TAG_REV, "0");
         BasicDBObjectBuilder builder = BasicDBObjectBuilder.start(obj);
         DBObject jo = builder.get();
         
@@ -191,8 +191,8 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         if (rev == null) {
             throw new ConflictException("Object passed into update does not have revision it expects set.");
         } else {
-            obj.put(DocumentUtil.TAG_REV, 
-                    Integer.valueOf(DocumentUtil.parseVersion(rev)));
+            DocumentUtil.parseVersion(rev);
+            obj.put(DocumentUtil.TAG_REV, rev);
         }
         
         DBCollection collection = getCollection(type);
@@ -333,16 +333,19 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
     
     private static String getObjectType(String id) {
         String type = null;
-        int lastSlashPos = id.lastIndexOf("/");
-        if (lastSlashPos > -1) {
-            int startPos = 0;
-            // This should not be necessary as relative URI should not start with slash
-            if (id.startsWith("/")) {
-                startPos = 1;
-            }
-            type = id.substring(startPos, lastSlashPos);
-            logger.trace("Full id: {} Extracted type: {}", id, type);
+        
+        int startPos = 0;
+        if (id.startsWith("/")) {
+            startPos = 1;
         }
+        int lastSlashPos = id.lastIndexOf("/");
+
+        if (lastSlashPos > startPos) {
+            type = id.substring(startPos, lastSlashPos);
+        } else {
+            type = id.substring(startPos);
+        }
+        logger.trace("Full id: {} Extracted type: {}", id, type);
         return type;
     }
     
