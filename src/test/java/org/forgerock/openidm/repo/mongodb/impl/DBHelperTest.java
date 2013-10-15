@@ -11,6 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.forgerock.json.fluent.JsonValue;
 import org.forgerock.openidm.repo.mongodb.util.JsonReader;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -54,9 +55,21 @@ public class DBHelperTest {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-//        MongoClient client = new MongoClient(addr);
-//        DB db = client.getDB(dbName);
-//        db.addUser(user, pass.toCharArray());
+    }
+
+    @AfterMethod
+    public void afterMethod() {
+        ServerAddress addr = null;
+        try {
+            addr = new ServerAddress(host, Integer.valueOf(port));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        MongoClient client = new MongoClient(addr);
+        DB db = client.getDB(dbName);
+        db.dropDatabase();
     }
 
     @AfterTest
@@ -73,7 +86,6 @@ public class DBHelperTest {
         DB db = client.getDB(dbName);
         db.dropDatabase();
     }
-    
     @Test
     public void testGetDB_with_setup() {
         DB db = DBHelper.getDB(config, true);
@@ -98,12 +110,10 @@ public class DBHelperTest {
         BasicDBObject query = new BasicDBObject();
         query.put("_openidm_id", "openidm-admin");
         DBObject r1 = collection.findOne(query);
-        System.out.println(r1);
         Assert.assertNull(r1);
         
         query.put("_openidm_id", "anonymous");
         DBObject r2 = collection.findOne(query);
-        System.out.println(r2);
         Assert.assertNull(r2);
         return;
     }

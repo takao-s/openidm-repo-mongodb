@@ -49,7 +49,7 @@ public class DBHelper {
         DB db = client.getDB(dbName);
         
         if (setupDB) {
-            if (db.getCollectionNames().isEmpty()) {
+            if (!client.getDatabaseNames().contains(dbName)) {
                 db.addUser(user, pass);
             }
             ensureIndexes(db, config);
