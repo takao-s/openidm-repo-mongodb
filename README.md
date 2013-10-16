@@ -67,4 +67,4 @@ Getting start with OpenIDM
             "**/openidm-repo-mongodb*.jar", << add this line
             ...
   ```
-
+6. run MongoDB and OpenIDM.
