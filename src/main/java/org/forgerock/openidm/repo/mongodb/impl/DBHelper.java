@@ -24,7 +24,7 @@ import com.mongodb.util.JSON;
  */
 public class DBHelper {
     final static Logger logger = LoggerFactory.getLogger(DBHelper.class);
-    
+    static MongoClientSingleton clientSingle;
     /**
      * Get the MongoDB for given config.
      * 
@@ -40,8 +40,9 @@ public class DBHelper {
         char[] pass = config.get(MongoDBRepoService.CONFIG_PASSWORD)
                 .defaultTo("openidm").asString().toCharArray();
         
-        MongoClient client = MongoClientSingleton.INSTANCE.getClient(config);
-        DB db = client.getDB(dbName);
+        clientSingle = MongoClientSingleton.INSTANCE.init(config);
+        MongoClient client = clientSingle.getClient();
+        DB db = clientSingle.getDB();
         
         if (setupDB) {
             if (!client.getDatabaseNames().contains(dbName)) {
@@ -60,7 +61,7 @@ public class DBHelper {
     }
     
     public static void close() {
-        MongoClientSingleton.INSTANCE.close();
+        clientSingle.close();
     }
     
     // Populates the default user, the pwd needs to be changed by the installer

@@ -203,9 +203,15 @@ public class Queries {
             String s = (queryInfo.getSort() == null) ? "{}" : queryInfo.getSort();
             DBObject sort = resolveQuery(s, params);
             
-            DBCursor cur = collection.find(query, fields).sort(sort);
-            result = cur.toArray();
-            cur.close();
+            DBCursor cur = null;
+            try {
+                cur = collection.find(query, fields).sort(sort);
+                result = cur.toArray();
+            } catch (Exception ex) {
+                throw new BadRequestException(ex.getMessage());
+            } finally {
+                cur.close();
+            }
         }
         return result;
     }

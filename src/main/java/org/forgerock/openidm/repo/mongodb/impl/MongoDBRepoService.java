@@ -69,6 +69,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
     public static final String CONFIG_DBNAME = "dbName";
     public static final String CONFIG_CONN_PER_HOST = "connectionPerHost";
     public static final String CONFIG_CONN_MULTIPLIER = "connectionMultiple";
+    public static final String CONFIG_WRITE_CONCERN = "writeconcern";
 
 
     public static final String CONFIG_QUERIES = "queries";

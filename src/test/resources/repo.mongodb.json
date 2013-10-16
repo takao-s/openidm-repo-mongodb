@@ -1,8 +1,9 @@
 {
-    "replicaSet" : [{"host" : "localhost", "port" : "27017"}],
+    "replicaSet" : [{"host" : "localhost", "port" : 27017}],
     "dbName" : "openidm_test",
-    "connectionsPerHost" : "100",
-    "connectonMultiple" : "5",
+    "connectionPerHost" : 100,
+    "connectionMultiple" : 5,
+    "writeconcern" : { "w" : 1, "j" : false, "wtimeout" : 0 },
     "user" : "openidm",
     "password" : "openidm",
     "queries" : {
