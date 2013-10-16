@@ -13,7 +13,6 @@ import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
-import org.bson.BSONObject;
 import org.forgerock.json.fluent.JsonValue;
 // JSON Resource
 import org.forgerock.json.resource.JsonResource;
@@ -43,7 +42,6 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
-import com.mongodb.util.JSON;
 
 /**
  * Repository service implementation using MongoDB
@@ -81,10 +79,9 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
     public static final String CONFIG_PASSWORD = "password";
     
     public static final String CONFIG_DB_COLLECTIONS = "collections";
-    public static final String CONFIG_INDEX = "index";    
+    public static final String CONFIG_INDEX = "index";
     public static final String CONFIG_INDEX_UNIQUE = "unique";
     
-    static final String[] KEIS_OF_STRING = {"password", "securityAnswer"};
     
     DB db;
     
@@ -125,7 +122,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         if (doc == null) {
             throw new NotFoundException("Object " + fullId + " not found in " + type);
         }
-        doc = normalizeForRead(doc);
+        doc = DocumentUtil.normalizeForRead(doc);
         result = doc.toMap();
         logger.trace("Completed get for id: {} result: {}", fullId, result);
         return result;
@@ -159,7 +156,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         obj.put(DocumentUtil.TAG_REV, "0");
         BasicDBObjectBuilder builder = BasicDBObjectBuilder.start(obj);
         DBObject jo = builder.get();
-        jo = normalizeForWrite(jo);
+        jo = DocumentUtil.normalizeForWrite(jo);
 
         DBCollection collection = getCollection(type);
         collection.insert(jo);
@@ -208,7 +205,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         obj.put(DocumentUtil.MONGODB_PRIMARY_KEY, localId);
         BasicDBObjectBuilder builder = BasicDBObjectBuilder.start(obj);
         DBObject jo = builder.get();
-        jo = normalizeForWrite(jo);
+        jo = DocumentUtil.normalizeForWrite(jo);
         WriteResult res = collection.update(new BasicDBObject(DocumentUtil.TAG_ID, localId), jo);
         logger.trace("Updated doc for id {} to save {}", fullId, jo);
     }
@@ -295,7 +292,7 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         if (queryResult != null) {
             long convStart = System.currentTimeMillis();
             for (DBObject entry : queryResult) {
-                entry = normalizeForRead(entry);
+                entry = DocumentUtil.normalizeForRead(entry);
                 Map<String, Object> convertedEntry = entry.toMap();
                 docs.add(convertedEntry);
             }
@@ -365,49 +362,6 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
     }
     
     /**
-     * MongoDB can't store data which has key starting with "$".
-     * So, When key starts with "$", convert "$" to "_$".
-     * 
-     * @param obj
-     * @return
-     */
-    private static DBObject normalizeForWrite (DBObject obj) {
-        String regex = "\"(\\$[^\"]+)\"";
-        String replacement = "\"_$1\"";
-        for (int i = 0; i < KEIS_OF_STRING.length; i++) {
-            if (obj.containsField(KEIS_OF_STRING[i])) {
-                JsonValue jv = new JsonValue(obj.get(KEIS_OF_STRING[i]));
-                String v = jv.toString().replaceAll(regex, replacement);
-                obj.put(KEIS_OF_STRING[i], JSON.parse(v));
-            }
-        }
-        return obj;
-    }
-    
-    /**
-     * unescape "_$" to "$".
-     * And Json parameter convert to Json as String paramter,
-     * Because, OpenIDM expected to parse Json as String.
-     * 
-     * @param obj
-     * @return
-     */
-    private static DBObject normalizeForRead (DBObject obj) {
-        String regex = "\"([^\"]+)\"";
-        String replacement = "\\\"$1\\\"";
-        for (int i = 0; i < KEIS_OF_STRING.length; i++) {
-            if (obj.containsField(KEIS_OF_STRING[i])) {
-                JsonValue jv = new JsonValue(obj.get(KEIS_OF_STRING[i]));
-                String v = jv.toString().replaceAll(regex, replacement);
-                v = v.replaceAll(" ", "");
-                v = v.replaceFirst("\"_\\$", "\"\\$");
-                obj.put(KEIS_OF_STRING[i], v);
-            }
-        }
-        return obj;
-    }
-    
-    /**
      * Populate and return a repository service that knows how to query and manipulate configuration.
      *
      * @param repoConfig the bootstrap configuration
@@ -418,7 +372,6 @@ public class MongoDBRepoService extends ObjectSetJsonResource implements Reposit
         bootRepo.init(repoConfig);
         return bootRepo;
     }
-    
     
     /**
      * Initialize the instnace with the given configuration.
