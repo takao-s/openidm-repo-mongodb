@@ -35,7 +35,36 @@ Getting start with OpenIDM
   ```json
   {
     "bundle":{
-        "containers":[
+      "containers":[
         {
+          "location":"bundle",
+          "includes":[
+            "**/openidm-system-*.jar",
+            "**/javax.transaction-*.jar"
+          ],
+          "start-level":1,
+          "action":"install.start"
+        },
+        .....
+        {
+          "location":"bundle",
+          "includes":[
+            "**/openidm-repo-jdbc*.jar",
+            "**/openidm-repo-orientdb*.jar",
+            "**/openidm-repo-mongodb*.jar", << add this line
+            "**/org.apache.felix.scr-*.jar"
+          ],
+          "start-level":4,
+          "action":"install.start"
+        },
+        .....
+        {
+          "location":"bundle",
+          "includes":["*.jar"],
+          "excludes":[
+            "**/openidm-security-*.jar",
+            ...
+            "**/openidm-repo-mongodb*.jar", << add this line
+            ...
   ```
 
