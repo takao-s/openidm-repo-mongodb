@@ -28,7 +28,7 @@
         "unit-test-01" : { "gender" : "${gender}", "age" : { "$gt" : "${unquoted:age}" } }
     },
     "fields" : {
-        "query-all-ids" : { "_openidm_id" : true },
+        "query-all-ids" : { "_rev" : true },
         "unit-test-02" : "${fields:fieldnames}"
     },
 
